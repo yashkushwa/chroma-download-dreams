@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
 
-## Project info
+# Chroma Video Downloader
 
-**URL**: https://lovable.dev/projects/4b1f3ddd-f08c-49d0-af33-3f5d4991f444
+A beautiful, feature-rich video downloading application with a modern UI and animations. Powered by yt-dlp and aria2c.
 
-## How can I edit this code?
+![Chroma Video Downloader](https://i.imgur.com/DwbjuKR.png)
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- 🎨 **Beautiful Modern UI** with animations, transitions, and a responsive design
+- 🚀 **Fast Downloads** using aria2c for multi-connection acceleration
+- 🎬 **Video Quality Selection** with resolution, format, and size information
+- 🎵 **Audio Extraction** option to download just the audio as MP3
+- 📊 **Download Progress** visualization
+- 📂 **Download Management** to see and access your downloaded files
+- 🎛️ **Customization Options** including custom filenames
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4b1f3ddd-f08c-49d0-af33-3f5d4991f444) and start prompting.
+## Requirements
 
-Changes made via Lovable will be committed automatically to this repo.
+- Python 3.7 or higher
+- aria2c (optional, but recommended for faster downloads)
 
-**Use your preferred IDE**
+## Quick Start
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Clone this repository or download the files
+2. Make sure Python 3.7+ is installed
+3. Run the start script:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+python start.py
 ```
 
-**Edit a file directly in GitHub**
+This will:
+- Check for and install required dependencies
+- Create the downloads directory
+- Start the web server on port 8000
+- Open your browser to http://localhost:8000
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Alternatively, you can run the app directly:
 
-**Use GitHub Codespaces**
+```bash
+python app.py
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Manual Installation
 
-## What technologies are used for this project?
+If you prefer to install dependencies manually:
 
-This project is built with:
+```bash
+pip install flask yt-dlp
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+To install aria2c (optional but recommended for faster downloads):
 
-## How can I deploy this project?
+- **Linux**: `sudo apt install aria2`
+- **macOS**: `brew install aria2`
+- **Windows**: `choco install aria2` or download from the [official releases](https://github.com/aria2/aria2/releases)
 
-Simply open [Lovable](https://lovable.dev/projects/4b1f3ddd-f08c-49d0-af33-3f5d4991f444) and click on Share -> Publish.
+## Usage
 
-## Can I connect a custom domain to my Lovable project?
+1. Paste a video URL in the input field
+2. Click "Get Video Info" to fetch available formats
+3. Select your preferred quality/format
+4. Customize options (filename, audio-only, etc.)
+5. Click "Download" to start downloading
+6. Access your downloaded files from the Downloads section
 
-Yes, you can!
+## Customization
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+You can customize the app by modifying the following:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **UI Colors**: Edit the CSS variables in the `index.html` file
+- **Download Folder**: Change the `DOWNLOAD_FOLDER` in `app.py`
+- **Port**: Change the port in `app.py` if 8000 is already in use
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Acknowledgements
+
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - The core video extraction library
+- [aria2](https://aria2.github.io/) - For accelerated downloads
+- [Flask](https://flask.palletsprojects.com/) - The web framework used
+- [Font Awesome](https://fontawesome.com/) - For the beautiful icons

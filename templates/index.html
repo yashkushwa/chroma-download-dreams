@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroma Video Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --background: #111827;
+            --foreground: #f9fafb;
+            --card: #1f2937;
+            --card-hover: #374151;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .description {
+            color: #9ca3af;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .input-container {
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-container:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .url-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .url-input {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #374151;
+            color: var(--foreground);
+            border: 1px solid #4b5563;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .primary-button {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .secondary-button {
+            background-color: #374151;
+            color: var(--foreground);
+        }
+        
+        .secondary-button:hover {
+            background-color: #4b5563;
+        }
+        
+        @media (max-width: 640px) {
+            .actions {
+                flex-direction: column;
+            }
+        }
+        
+        .video-info {
+            display: none;
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease-in-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .video-info-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .thumbnail-container {
+            width: 160px;
+            height: 90px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .video-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        .format-options {
+            margin-top: 1.5rem;
+        }
+        
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .option-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #d1d5db;
+        }
+        
+        .format-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .format-card {
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .format-card:hover {
+            background-color: #374151;
+        }
+        
+        .format-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        
+        .format-detail {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .format-detail.main {
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .format-detail.sub {
+            color: #9ca3af;
+        }
+        
+        .download-options {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .custom-filename {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .custom-filename input {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #374151;
+            color: var(--foreground);
+            border: 1px solid #4b5563;
+            font-size: 0.875rem;
+        }
+        
+        .custom-filename input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .checkbox-custom {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 2px solid #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-input {
+            display: none;
+        }
+        
+        .checkbox-input:checked + .checkbox-custom {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .checkbox-input:checked + .checkbox-custom::after {
+            content: "";
+            width: 0.375rem;
+            height: 0.375rem;
+            background-color: white;
+            border-radius: 0.125rem;
+        }
+        
+        .checkbox-label {
+            font-size: 0.875rem;
+            user-select: none;
+        }
+        
+        .download-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .download-progress {
+            display: none;
+            margin-top: 1.5rem;
+            animation: slideUp 0.5s ease-in-out;
+        }
+        
+        .progress-container {
+            background-color: #2d3748;
+            border-radius: 9999px;
+            height: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 9999px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        
+        .downloads-section {
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.5s ease-in-out;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .download-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .download-item {
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .download-item:hover {
+            background-color: #374151;
+        }
+        
+        .download-item-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 70%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .download-item-info {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        
+        .download-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .item-action {
+            background-color: #4b5563;
+            border: none;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .item-action:hover {
+            background-color: #6b7280;
+        }
+        
+        .item-action.download {
+            background-color: var(--primary);
+        }
+        
+        .item-action.download:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+            max-width: 24rem;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .toast.success {
+            background-color: var(--success);
+        }
+        
+        .toast.error {
+            background-color: var(--error);
+        }
+        
+        .toast.info {
+            background-color: var(--primary);
+        }
+        
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-message {
+            font-weight: 500;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .video-info-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .thumbnail-container {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16/9;
+            }
+            
+            .format-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-bolt"></i> Chroma Download
+            </div>
+            <p class="description">Fast and customizable video downloader powered by yt-dlp and aria2c</p>
+        </header>
+        
+        <div class="input-container">
+            <form id="urlForm" class="url-form">
+                <input type="text" id="urlInput" class="url-input" placeholder="Paste video URL here..." required>
+                <div class="actions">
+                    <button type="submit" class="button primary-button">
+                        <i class="fas fa-search"></i> Get Video Info
+                    </button>
+                    <button type="button" id="resetButton" class="button secondary-button">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="loadingIndicator" class="spinner-container" style="display: none;">
+            <div class="loading"></div>
+        </div>
+        
+        <div id="videoInfo" class="video-info">
+            <div class="video-info-header">
+                <div class="thumbnail-container">
+                    <img id="videoThumbnail" class="thumbnail" src="" alt="Video thumbnail">
+                </div>
+                <div>
+                    <h2 id="videoTitle" class="video-title"></h2>
+                    <div class="video-meta">
+                        <span id="videoDuration"><i class="fas fa-clock"></i> --:--</span>
+                        <span id="videoUploader"><i class="fas fa-user"></i> Unknown</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="format-options">
+                <div class="option-group">
+                    <h3 class="option-title">Select Video Quality</h3>
+                    <div id="formatList" class="format-list">
+                        <!-- Formats will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="download-options">
+                    <div class="custom-filename">
+                        <label for="customFilename">Custom filename (optional):</label>
+                        <input type="text" id="customFilename" placeholder="Enter custom filename">
+                    </div>
+                    
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="audioOnlyCheckbox" class="checkbox-input">
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">Audio only (MP3)</span>
+                    </label>
+                    
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="useAria2Checkbox" class="checkbox-input" checked>
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">Use aria2c for faster downloads</span>
+                    </label>
+                </div>
+                
+                <div class="download-actions">
+                    <button id="downloadButton" class="button primary-button">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+                
+                <div id="downloadProgress" class="download-progress">
+                    <div class="progress-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressStatus">Preparing download...</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="downloads-section">
+            <div class="section-header">
+                <h2 class="section-title">Downloads</h2>
+                <button id="refreshDownloads" class="button secondary-button">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            
+            <div id="downloadList" class="download-list">
+                <!-- Downloaded files will appear here -->
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Built with ❤️ using Python, Flask, yt-dlp, and aria2c</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const urlForm = document.getElementById('urlForm');
+            const urlInput = document.getElementById('urlInput');
+            const resetButton = document.getElementById('resetButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const videoInfo = document.getElementById('videoInfo');
+            const videoThumbnail = document.getElementById('videoThumbnail');
+            const videoTitle = document.getElementById('videoTitle');
+            const videoDuration = document.getElementById('videoDuration');
+            const videoUploader = document.getElementById('videoUploader');
+            const formatList = document.getElementById('formatList');
+            const audioOnlyCheckbox = document.getElementById('audioOnlyCheckbox');
+            const customFilename = document.getElementById('customFilename');
+            const useAria2Checkbox = document.getElementById('useAria2Checkbox');
+            const downloadButton = document.getElementById('downloadButton');
+            const downloadProgress = document.getElementById('downloadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressStatus = document.getElementById('progressStatus');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const refreshDownloads = document.getElementById('refreshDownloads');
+            const downloadList = document.getElementById('downloadList');
+            
+            // Current video data
+            let currentVideo = null;
+            let selectedFormat = null;
+            
+            // Format duration in minutes and seconds
+            function formatDuration(seconds) {
+                if (!seconds) return '--:--';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (!bytes) return 'Unknown size';
+                const units = ['B', 'KB', 'MB', 'GB'];
+                let i = 0;
+                while (bytes >= 1024 && i < units.length - 1) {
+                    bytes /= 1024;
+                    i++;
+                }
+                return `${bytes.toFixed(2)} ${units[i]}`;
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'info') {
+                // Remove any existing toasts
+                const existingToasts = document.querySelectorAll('.toast');
+                existingToasts.forEach(toast => toast.remove());
+                
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                let icon = 'info-circle';
+                if (type === 'success') icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-circle';
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <div class="toast-content">
+                        <div class="toast-message">${message}</div>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Remove toast after 3 seconds
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+            
+            // Reset the form and hide video info
+            function resetForm() {
+                urlInput.value = '';
+                videoInfo.style.display = 'none';
+                currentVideo = null;
+                selectedFormat = null;
+                audioOnlyCheckbox.checked = false;
+                customFilename.value = '';
+                useAria2Checkbox.checked = true;
+                downloadProgress.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressStatus.textContent = 'Preparing download...';
+                progressPercentage.textContent = '0%';
+            }
+            
+            // Get video information
+            async function getVideoInfo(url) {
+                try {
+                    loadingIndicator.style.display = 'flex';
+                    videoInfo.style.display = 'none';
+                    
+                    const response = await fetch('/api/video-info', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ url })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Failed to get video information');
+                    }
+                    
+                    const data = await response.json();
+                    currentVideo = data;
+                    
+                    // Update video info
+                    videoThumbnail.src = data.thumbnail || 'https://placehold.co/320x180/1f2937/cccccc?text=No+Thumbnail';
+                    videoTitle.textContent = data.title || 'Unknown Title';
+                    videoDuration.innerHTML = `<i class="fas fa-clock"></i> ${formatDuration(data.duration)}`;
+                    videoUploader.innerHTML = `<i class="fas fa-user"></i> ${data.uploader || 'Unknown'}`;
+                    
+                    // Populate formats
+                    formatList.innerHTML = '';
+                    data.formats.forEach((format, index) => {
+                        const formatCard = document.createElement('div');
+                        formatCard.className = 'format-card';
+                        formatCard.dataset.formatId = format.format_id;
+                        
+                        // Select first format by default
+                        if (index === 0) {
+                            formatCard.classList.add('selected');
+                            selectedFormat = format.format_id;
+                        }
+                        
+                        formatCard.innerHTML = `
+                            <div class="format-detail main">${format.resolution || 'Unknown'}</div>
+                            <div class="format-detail sub">${format.extension} · ${format.fps || 'N/A'}fps</div>
+                            <div class="format-detail sub">${formatFileSize(format.filesize)}</div>
+                        `;
+                        
+                        formatCard.addEventListener('click', () => {
+                            // Remove selected class from all cards
+                            document.querySelectorAll('.format-card').forEach(card => {
+                                card.classList.remove('selected');
+                            });
+                            
+                            // Add selected class to clicked card
+                            formatCard.classList.add('selected');
+                            selectedFormat = format.format_id;
+                            
+                            // Disable audio only if a format is selected
+                            audioOnlyCheckbox.checked = false;
+                        });
+                        
+                        formatList.appendChild(formatCard);
+                    });
+                    
+                    // Show video info
+                    videoInfo.style.display = 'block';
+                    
+                    // Add a small animation
+                    videoInfo.style.opacity = '0';
+                    setTimeout(() => {
+                        videoInfo.style.opacity = '1';
+                    }, 100);
+                    
+                } catch (error) {
+                    showToast(error.message, 'error');
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            // Download the video
+            async function downloadVideo() {
+                if (!currentVideo) {
+                    showToast('No video selected', 'error');
+                    return;
+                }
+                
+                try {
+                    downloadButton.disabled = true;
+                    downloadButton.innerHTML = '<div class="loading"></div> Downloading...';
+                    downloadProgress.style.display = 'block';
+                    
+                    // Prepare download options
+                    const downloadOptions = {
+                        url: currentVideo.url || urlInput.value,
+                        format_id: audioOnlyCheckbox.checked ? null : selectedFormat,
+                        audio_only: audioOnlyCheckbox.checked,
+                        filename: customFilename.value.trim(),
+                        use_aria: useAria2Checkbox.checked
+                    };
+                    
+                    const response = await fetch('/api/download', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(downloadOptions)
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Download failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Show success message
+                    showToast('Download completed successfully!', 'success');
+                    
+                    // Reset the form
+                    resetForm();
+                    
+                    // Refresh downloads list
+                    fetchDownloads();
+                    
+                } catch (error) {
+                    showToast(error.message, 'error');
+                    downloadProgress.style.display = 'none';
+                } finally {
+                    downloadButton.disabled = false;
+                    downloadButton.innerHTML = '<i class="fas fa-download"></i> Download';
+                }
+            }
+            
+            // Fetch downloads
+            async function fetchDownloads() {
+                try {
+                    const response = await fetch('/api/downloads');
+                    const data = await response.json();
+                    
+                    downloadList.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        downloadList.innerHTML = '<p class="text-muted">No downloads yet</p>';
+                        return;
+                    }
+                    
+                    data.forEach(file => {
+                        const item = document.createElement('div');
+                        item.className = 'download-item';
+                        
+                        item.innerHTML = `
+                            <div>
+                                <div class="download-item-name">${file.name}</div>
+                                <div class="download-item-info">${file.size_formatted}</div>
+                            </div>
+                            <div class="download-item-actions">
+                                <a href="${file.download_url}" class="item-action download" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                        
+                        downloadList.appendChild(item);
+                    });
+                    
+                } catch (error) {
+                    showToast('Failed to fetch downloads', 'error');
+                }
+            }
+            
+            // Event listeners
+            urlForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const url = urlInput.value.trim();
+                if (url) {
+                    getVideoInfo(url);
+                }
+            });
+            
+            resetButton.addEventListener('click', resetForm);
+            
+            downloadButton.addEventListener('click', downloadVideo);
+            
+            audioOnlyCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Deselect all format cards
+                    document.querySelectorAll('.format-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    selectedFormat = null;
+                } else if (formatList.children.length > 0) {
+                    // Select first format by default
+                    const firstCard = formatList.children[0];
+                    firstCard.classList.add('selected');
+                    selectedFormat = firstCard.dataset.formatId;
+                }
+            });
+            
+            refreshDownloads.addEventListener('click', fetchDownloads);
+            
+            // Add some nice animation to the UI
+            document.querySelectorAll('.input-container, .downloads-section').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100);
+            });
+            
+            // Initial load
+            fetchDownloads();
+        });
+    </script>
+</body>
+</html>
